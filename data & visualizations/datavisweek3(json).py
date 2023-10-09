@@ -20,7 +20,7 @@ print(values)
 
 plt.figure(figsize=(12, 6))
 plt.plot(timestamps, values, marker='o', linestyle='-', color='b')
-plt.title(data["title"])
+plt.title("Electricity Demand")
 plt.xlabel("Timestamp (Hour Ending)")
 plt.ylabel("Value")
 plt.grid(True)
