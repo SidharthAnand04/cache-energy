@@ -5,7 +5,6 @@ from statsmodels.tsa.arima.model import ARIMA
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
-# Load electricity price data from a CSV file
 data = pd.read_csv('model/electricity_prices.csv')
 
 # Assuming the CSV file has two columns: 'Timestamp' and 'Price'
@@ -45,7 +44,6 @@ forecast_steps = 24  # Number of hours to forecast into the future
 # forecast, stderr, conf_int = model_fit.forecast(steps=forecast_steps)
 forecast = model_fit.forecast(steps=forecast_steps)
 
-
 # Predict when to charge in the future based on forecasted prices
 future_timestamps = [timestamps.iloc[-1] +
                      timedelta(hours=i) for i in range(1, forecast_steps + 1)]
@@ -55,6 +53,9 @@ future_charging_decisions = [should_charge(
     price, threshold_price) for price in future_prices]
 
 # Print the results
+print("            ")
+print("            ")
+print("            ")
 print("Optimal Charge Time (Hour of the day):", int(optimal_charge_time))
 print("Threshold Price:", threshold_price)
 
@@ -62,7 +63,6 @@ print("\nFuture Price Predictions:")
 future_data = pd.DataFrame({'Timestamp': future_timestamps,
                            'Predicted_Price': future_prices, 'ShouldCharge': future_charging_decisions})
 print(future_data)
-
 
 # Visualization of data and optimal charge times
 plt.scatter(data['Timestamp'], data['Price'],
@@ -78,6 +78,7 @@ optimal_charge_time_str = str(timestamps[optimal_charge_time])
 plt.axvline(x=optimal_charge_time_str, color='r',
             linestyle='--', label='Optimal Charge Time')
 plt.legend()
+
 
 # Create and plot the second figure
 plt.figure()

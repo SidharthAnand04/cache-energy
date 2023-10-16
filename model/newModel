@@ -1,0 +1,98 @@
+from sklearn.cluster import KMeans
+import pandas as pd
+import numpy as np
+from statsmodels.tsa.arima.model import ARIMA
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+import requests
+import csv
+import matplotlib.dates as mdates
+
+# Define the URL of the API
+api_url = "https://hourlypricing.comed.com/api?type=5minutefeed"
+
+# Make an HTTP GET request to the API
+response = requests.get(api_url)
+
+# Check if the request was successful
+if response.status_code == 200:
+    # Parse the JSON data from the API response
+    api_data = response.json()
+
+    # Extract timestamps and prices from the API data
+    timestamps = [datetime.fromtimestamp(
+        int(entry['millisUTC']) / 1000) for entry in api_data]
+
+    prices = np.array([entry['price'] for entry in api_data], dtype=float)
+
+    # Replace NaN values with a specific value (e.g., 0)
+    prices = np.nan_to_num(prices, nan=0)
+
+    # Define the number of clusters (charge times) you want to identify
+    num_clusters = 3  # You can adjust this based on your needs
+
+    # Reshape the data into a 2D array
+    X = np.column_stack((np.arange(len(timestamps)), prices))
+
+    # Use K-Means clustering to identify optimal charging times
+    kmeans = KMeans(n_clusters=num_clusters, random_state=0, n_init=10)
+    kmeans.fit(X)
+    cluster_centers = kmeans.cluster_centers_
+    cluster_centers = sorted(cluster_centers, key=lambda x: x[1])
+    optimal_charge_time = cluster_centers[0][0]
+    threshold_price = cluster_centers[0][1]
+
+    # Fit an ARIMA model to predict future prices
+    model = ARIMA(prices, order=(5, 1, 0))
+    model_fit = model.fit()
+    forecast_steps = 24  # Number of hours to forecast into the future
+    forecast = model_fit.forecast(steps=forecast_steps)
+
+    # Predict when to charge in the future based on forecasted prices
+    future_timestamps = [timestamps[-1] +
+                         timedelta(hours=i) for i in range(1, forecast_steps + 1)]
+    future_prices = forecast.tolist()
+    future_charging_decisions = [
+        price < threshold_price for price in future_prices]
+
+    # Save the future charging decisions to a CSV file
+    future_data = pd.DataFrame({'Timestamp': future_timestamps,
+                                'Predicted_Price': future_prices, 'ShouldCharge': future_charging_decisions})
+    future_data.to_csv('future_charging_decisions.csv', index=False)
+
+    # Visualization of data and optimal charge times
+    plt.scatter(timestamps, prices, c=kmeans.labels_, cmap='viridis')
+    plt.xlabel('Timestamp')
+    plt.ylabel('Price')
+    plt.title('Electricity Price vs. Time with Optimal Charge Times')
+
+    # Convert the optimal charge time to a numerical value
+    optimal_charge_time_num = mdates.date2num(
+        timestamps[int(optimal_charge_time)])
+
+    # Plot the vertical line at the optimal charge time
+    plt.axvline(x=optimal_charge_time_num, color='r',
+                linestyle='--', label='Optimal Charge Time')
+    plt.legend()
+
+    # Save the first figure as a PNG file
+    plt.savefig('figure1.png')
+
+    # Create and plot the second figure
+    plt.figure()
+    plt.plot(future_data['Timestamp'],
+             future_data['Predicted_Price'], label='Predicted Price')
+    plt.axhline(y=threshold_price, color='r',
+                linestyle='--', label='Threshold Price')
+    plt.xlabel('Timestamp')
+    plt.ylabel('Price')
+    plt.title('Future Price Predictions')
+    plt.legend()
+
+    # Save the first figure as a PNG file
+    plt.savefig('figure2.png')
+
+    # Display both figures
+    plt.show()
+else:
+    print("Failed to fetch data from the API. Status code:", response.status_code)
