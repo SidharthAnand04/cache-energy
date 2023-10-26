@@ -1,94 +1,32 @@
-import json
 import pandas as pd
-import matplotlib.pyplot as plt
-from datetime import datetime
-import requests
-from matplotlib.ticker import ScalarFormatter
-import csv
-import random
+import numpy as np
+from datetime import datetime, timedelta
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
 
-api_url = "https://api.eia.gov/v2/electricity/rto/region-data/data/?api_key=Sr32RhpckMKBDCIz8HzmaB0Y7dKDW0T90edtf0rN&frequency=hourly&data[0]=value&sort[0][column]=period&sort[0][direction]=desc&offset=0&length=5000"
+# Load your data from the CSV file
+data = pd.read_csv('electricity_prices.csv')
 
-x_params = {
-    "frequency": "hourly",
-    "data": [
-        "value"
-    ],
-    "facets": {},
-    "start": None,
-    "end": None,
-    "sort": [
-        {
-            "column": "period",
-            "direction": "desc"
-        }
-    ],
-    "offset": 0,
-    "length": 5000
-}
+# Extract the features (independent variables)
+timestamps = pd.to_datetime(data['Timestamp'])
+prices = data['Price']
+demand = data['Demand']
 
-x_params_json = json.dumps(x_params)
+# Convert the datetime values to numeric using a timestamp representation
+timestamps_numeric = (timestamps - timestamps.min()) / np.timedelta64(1, 'D')
 
-headers = {
-    "X-Params": x_params_json,
-    "Content-Type": "application/json", 
-}
+print(timestamps_numeric)
 
-response = requests.get(api_url, headers=headers)
+# Combine the numeric features into a DataFrame
+features = pd.DataFrame({'Timestamp': timestamps_numeric, 'Price': prices, 'Demand': demand})
 
-if response.status_code == 200:
-
-    data = response.json()
-    
-else:
-    print("Failed to retrieve data. Status code: {response.status_code}")
-    print(response.status_code)
-    quit()
-
-##filter for only useful energy demand values
-filtered_data = [(entry['period'], entry['value']) for entry in data['response']['data'] if isinstance(entry['value'], int) and entry['value'] > 300000]
-times, values = zip(*filtered_data)
-
-
-
-##converting from the file's timestamps format to ints for the random forest model
-def convert_timestamp_format(timestamp_str):
-    parts = timestamp_str.split('T')
-    if len(parts) == 2:
-        date_part, time_part = parts
-        year, month, day = map(int, date_part.split('-'))
-        hour = int(time_part)
-        return year, month, day, hour
-    else:
-        # Handle the case when the format is not as expected
-        return None
-
-# Apply the conversion to the entire list
-new_data = [(*convert_timestamp_format(date_str), value) for date_str, value in filtered_data]
-
-
-##fake price value generation
-def generate_random_price():
-    return random.randint(15, 30)
-
-# Add the price value to each tuple
-result1 = [(year, month, day, hour, value, generate_random_price()) for year, month, day, hour, value in new_data]
-
-##fake charge rate value generation
-def generate_random_chargerate():
-    return random.random()
-
-# Add a random value to each tuple
-result2 = [(year, month, day, hour, value, price, generate_random_chargerate()) for year, month, day, hour, value, price in result1]
-
-##set features and target from result 2 list
-features = [(item[0], item[1], item[2], item[3], item[4], item[5]) for item in result2]
-target = [item[6] for item in result2]
+# Extract the target variable (dependent variable)
+chargerate = data['Charge Rate']
 
 # Split the data into a training set (80%) and a testing set (20%)
-X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(features, chargerate, test_size=0.2, random_state=42)
 
 # Initialize the Random Forest model
 rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
@@ -99,16 +37,48 @@ rf_model.fit(X_train, y_train)
 # Make predictions on the testing set
 predictions = rf_model.predict(X_test)
 
-# Evaluate the model's performance (you can use appropriate metrics depending on your problem, such as Mean Absolute Error, Mean Squared Error, etc.)
-from sklearn.metrics import mean_squared_error
 
+# Evaluate the model's performance (e.g., Mean Squared Error)
 mse = mean_squared_error(y_test, predictions)
 print(f"Mean Squared Error: {mse}")
 
-# You can use the model to predict the fourth value for new data
+newtimestamp = ['2023-10-01 00:00:00']
+newtimestamp = pd.to_datetime(newtimestamp)
+newtimestamp_numeric = (newtimestamp - newtimestamp.min()) / np.timedelta64(1, 'D')
+print(newtimestamp_numeric)
 
-'''
-new_data = [(new features here)]
-new_predictions = rf_model.predict(new_data)
+# Create a new DataFrame with the features for the data you want to predict
+new_data = pd.DataFrame({'Timestamp': newtimestamp_numeric, 'Price': 50, 'Demand': 439690})
 
-'''
+# Use the trained model to make a prediction
+predicted_charge_rate = rf_model.predict(new_data)
+
+# The variable 'predicted_charge_rate' now contains the predicted charge rate for your new data point.
+print(f"Predicted Charge Rate: {predicted_charge_rate[0]}")
+
+#visualization for accuracy
+plt.figure(figsize=(8, 6))
+plt.scatter(y_test, predictions, alpha=0.5)
+plt.xlabel("Actual Charge Rate")
+plt.ylabel("Predicted Charge Rate")
+plt.title("Actual vs. Predicted Charge Rate")
+plt.grid(True)
+plt.show()
+
+
+# create predictions here
+newtimestamp = ['2023-10-01 00:00:00']
+newtimestamp = pd.to_datetime(newtimestamp)
+newtimestamp_numeric = (newtimestamp - newtimestamp.min()) / np.timedelta64(1, 'D')
+
+newprice = 50
+newdemand = 439690
+
+# Create a new DataFrame with the features for the data you want to predict
+new_data = pd.DataFrame({'Timestamp': newtimestamp_numeric, 'Price': newprice, 'Demand': newdemand})
+
+# Use the trained model to make a prediction
+predicted_charge_rate = rf_model.predict(new_data)
+
+# The variable 'predicted_charge_rate' now contains the predicted charge rate for your new data point.
+print(f"Predicted Charge Rate: {predicted_charge_rate[0]}")
