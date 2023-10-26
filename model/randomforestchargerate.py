@@ -7,7 +7,7 @@ from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 
 # Load your data from the CSV file
-data = pd.read_csv('electricity_prices.csv')
+data = pd.read_csv('randomforestdata.csv')
 
 # Extract the features (independent variables)
 timestamps = pd.to_datetime(data['Timestamp'])
