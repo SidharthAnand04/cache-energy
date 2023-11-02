@@ -33,37 +33,40 @@ headers = {
     "Content-Type": "application/json", 
 }
 
-response = requests.get(api_url, headers=headers)
+def creategraph():
 
-if response.status_code == 200:
+    response = requests.get(api_url, headers=headers)
 
-    data = response.json()
-    
-else:
-    print("Failed to retrieve data. Status code: {response.status_code}")
-    print(response.status_code)
-    quit()
+    if response.status_code == 200:
 
-filtered_data = [(entry['period'], entry['value']) for entry in data['response']['data'] if isinstance(entry['value'], int) and entry['value'] > 300000]
-times, values = zip(*filtered_data)
+        data = response.json()
+        
+    else:
+        print("Failed to retrieve data. Status code: {response.status_code}")
+        print(response.status_code)
+        quit()
+
+    filtered_data = [(entry['period'], entry['value']) for entry in data['response']['data'] if isinstance(entry['value'], int) and entry['value'] > 300000]
+    times, values = zip(*filtered_data)
 
 
-'''values = [entry["value"] for entry in data["response"]["data"] if isinstance(entry['value'], int) and entry['value'] > 300000]
-times = [entry["period"] for entry in data["response"]["data"]]'''
+    '''values = [entry["value"] for entry in data["response"]["data"] if isinstance(entry['value'], int) and entry['value'] > 300000]
+    times = [entry["period"] for entry in data["response"]["data"]]'''
 
-times = [pd.to_datetime(time) for time in times]
-print(filtered_data)
-plt.figure(figsize=(10, 6))
-plt.scatter(times, values, marker='o', color='b')
-plt.title("Electricity Demand")
-plt.xlabel("Period (MM-DD Hour)")
-plt.ylabel("Demand (megawatthours)")
-plt.xticks(rotation=45)
-plt.grid(True)
-formatter = ScalarFormatter()
-formatter.set_scientific(False)
-plt.gca().get_yaxis().set_major_formatter(formatter)
+    times = [pd.to_datetime(time) for time in times]
+    print(filtered_data)
+    plt.figure(figsize=(10, 6))
+    plt.scatter(times, values, marker='o', color='b')
+    plt.title("Electricity Demand")
+    plt.xlabel("Period (MM-DD Hour)")
+    plt.ylabel("Demand (megawatthours)")
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    formatter = ScalarFormatter()
+    formatter.set_scientific(False)
+    plt.gca().get_yaxis().set_major_formatter(formatter)
 
-plt.tight_layout()
-plt.show()
+    plt.tight_layout()
+    plt.show()
 
+creategraph()
