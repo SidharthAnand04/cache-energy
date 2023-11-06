@@ -4,14 +4,14 @@ import React from 'react';
 import axios from 'axios';
 
 const App = () => {
-  const [data, setData] = React.useState(null);
+  const [imagePath, setImagePath] = React.useState('');
 
   const componentDidMount = () => {
     // Make a GET request to a Flask API endpoint
-    axios.get('http://127.0.0.1:5000/api/data')
+    axios.get('/api/data')
       .then((response) => {
         console.log(response);
-        setData(response.data)
+        setImagePath(response.data.image_path)
         console.log("data fetched from backend");
       })
       .catch((error) => {
@@ -30,7 +30,8 @@ const App = () => {
           <button onClick={componentDidMount}>
             <p>
               press me!
-              {JSON.stringify(data)};
+              <img src = {imagePath} alt="img"/>
+              {/* {JSON.stringify(data)}; */}
             </p>
           </button>
         </div>
@@ -40,7 +41,6 @@ const App = () => {
     </div>
   );
 }
-
 // class App extends Component {
 //   constructor() {
 //     super();
