@@ -141,6 +141,8 @@ predicted_charge_rate = rf_model.predict(new_data)
 print(f"Predicted Charge Rate: {predicted_charge_rate[0]}")
 
 
+# uncomment to get visual of actual vs predicted value(linear looking graph)
+'''
 plt.figure(figsize=(8, 6))
 plt.scatter(y_test, predictions, alpha=0.5)
 plt.xlabel("Actual Charge Rate")
@@ -148,5 +150,22 @@ plt.ylabel("Predicted Charge Rate")
 plt.title("Actual vs. Predicted Charge Rate")
 plt.grid(True)
 plt.show()
+'''
+
+#this is visual of actual and predicted vs time(not linear)
+# Plotting the graph
+plt.figure(figsize=(10, 6))
+
+# Scatter plot for actual values vs. time
+plt.scatter(X_test['Timestamp'], y_test, label='Actual', marker='o', color='blue')
+
+# Scatter plot for predicted values vs. time
+plt.scatter(X_test['Timestamp'], predictions, label='Predicted', marker='x', color='green')
 
 
+plt.xlabel("Time")
+plt.ylabel("Charge Rate")
+plt.title("Actual and Predicted Charge Rate Over Time")
+plt.legend()
+plt.grid(True)
+plt.show()
