@@ -1,63 +1,75 @@
+
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
 import requests
+import matplotlib
+from matplotlib.ticker import ScalarFormatter
+import os
+import matplotlib.pyplot as plt
+plt.switch_backend('Agg')
 
-api_url = "https://api.eia.gov/v2/electricity/rto/region-data/data/?api_key=Sr32RhpckMKBDCIz8HzmaB0Y7dKDW0T90edtf0rN&frequency=hourly&data[0]=value&sort[0][column]=period&sort[0][direction]=desc&offset=0&length=5000"
+matplotlib.use('Agg')
 
-x_params = {
-    "frequency": "hourly",
-    "data": [
-        "value"
-    ],
-    "facets": {},
-    "start": None,
-    "end": None,
-    "sort": [
-        {
-            "column": "period",
-            "direction": "desc"
-        }
-    ],
-    "offset": 0,
-    "length": 5000
-}
-
-x_params_json = json.dumps(x_params)
-
-headers = {
-    "X-Params": x_params_json,
-    "Content-Type": "application/json", 
-}
 
 def get_graph():
+    api_url = "https://api.eia.gov/v2/electricity/rto/region-data/data/?api_key=Sr32RhpckMKBDCIz8HzmaB0Y7dKDW0T90edtf0rN&frequency=hourly&data[0]=value&sort[0][column]=period&sort[0][direction]=desc&offset=0&length=5000"
+    x_params = {
+        "frequency": "hourly",
+        "data": [
+            "value"
+        ],
+        "facets": {},
+        "start": None,
+        "end": None,
+        "sort": [
+            {
+                "column": "period",
+                "direction": "desc"
+            }
+        ],
+        "offset": 0,
+        "length": 5000
+    }
+    x_params_json = json.dumps(x_params)
+    headers = {
+        "X-Params": x_params_json,
+        "Content-Type": "application/json",
+    }
     response = requests.get(api_url, headers=headers)
-
-
     if response.status_code == 200:
-
         data = response.json()
-        return data
     else:
-        print(f"Failed to retrieve data. Status code: {response.status_code}")
+        print("Failed to retrieve data. Status code: {response.status_code}")
         print(response.status_code)
         quit()
+    filtered_data = [(entry['period'], entry['value']) for entry in data['response']['data'] if isinstance(entry['value'], int) and entry['value'] > 300000]
+    times, values = zip(*filtered_data)
+    '''values = [entry["value"] for entry in data["response"]["data"] if isinstance(entry['value'], int) and entry['value'] > 300000]
+    times = [entry["period"] for entry in data["response"]["data"]]'''
+    times = [pd.to_datetime(time) for time in times]
+    # print(filtered_data)
+    plt.figure(figsize=(10, 6))
+    plt.scatter(times, values, marker='o', color='b')
+    plt.title("Electricity Demand")
+    plt.xlabel("Period (MM-DD Hour)")
+    plt.ylabel("Demand (megawatthours)")
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    formatter = ScalarFormatter()
+    formatter.set_scientific(False)
+    plt.gca().get_yaxis().set_major_formatter(formatter)
+    plt.tight_layout()
+
+
         
-    # values = [entry["value"] for entry in data["response"]["data"]]
-    # times = [entry["period"] for entry in data["response"]["data"]]
-
-    # times = [pd.to_datetime(time) for time in times]
-
-    # plt.figure(figsize=(10, 6))
-    # plt.scatter(times, values, marker='o', color='b')
-    # plt.title("Electricity Demand")
-    # plt.xlabel("Period (MM-DD Hour)")
-    # plt.ylabel("Demand (megawatthours)")
-    # plt.xticks(rotation=45)
-    # plt.grid(True)
-
-    # plt.tight_layout()
-    # plt.show()
+    script_path = os.path.dirname(os.path.realpath(__file__))
+    file_path = os.path.join(script_path, '../frontend/src/components/assets/demand.png')
+    plt.savefig(file_path, dpi=300)
+    return "./components/assets/demand.png"
+        # plt.savefig('../frontend/src/components/assets/demand.png', dpi = 300)
+        # return "./components/assets/demand.png"
 
 
+print(get_graph())

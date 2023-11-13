@@ -1,21 +1,16 @@
 import React from 'react';
 import './navbar.css';
-// import home from "frontend/src/components/assets/Home.png";
-// import logo from "frontend/src/components/assets/logo.png";
+import logo from '/Users/eduar/Desktop/cacheenergy/cache-energy/frontend/src/components/assets/logo.png';
 
 function Navbar() {
   return (
   <div className= "sidenav">
     <div className= ".logo">
-      {/* <img src = {logo} alt="badbadbad"/> */}
+      <img src = {logo} alt="badbadbad" width = '110'/>
     </div>
       <div className = "block"> 
         <div>
-          {/* <img src={home} alt="this is very bad"/> */}
-          hello
-        </div>
-        <div>
-          what
+          Home
         </div>
       </div>
   </div>
