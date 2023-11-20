@@ -1,0 +1,60 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
+
+
+def sine_function(x, amplitude, frequency, phase, offset):
+    return amplitude * np.sin(frequency * x + phase) + offset
+
+
+# Generate time points
+num_points = 200
+time = np.linspace(0, 2 * np.pi, num_points)
+
+# Generate a sine curve for price points with added noise for realism
+amplitude = 5
+frequency = 2  # Increase the frequency to have more waves
+phase = 0
+offset = 10
+noise_factor = 2
+price = amplitude * np.sin(frequency * time + phase) + offset + \
+    np.random.normal(0, noise_factor, num_points)
+
+# Find peaks (maxima) and valleys (minima)
+peaks, _ = find_peaks(price)
+valleys, _ = find_peaks(-price)
+
+# Plot the sine curve and mark the peaks and valleys
+plt.plot(time, price, label='Sine Curve with Noise')
+plt.plot(time[peaks], price[peaks], 'ro', label='Relative Maxima')
+plt.plot(time[valleys], price[valleys], 'go', label='Relative Minima')
+
+# Create charging intervals (between max points)
+charging_intervals = []
+for peak in peaks:
+    if peak > 0 and peak < num_points - 1:
+        charging_intervals.append((time[peak - 1], time[peak + 1]))
+
+# Create discharging intervals (between min points)
+discharging_intervals = []
+for valley in valleys:
+    if valley > 0 and valley < num_points - 1:
+        discharging_intervals.append((time[valley - 1], time[valley + 1]))
+
+# Convert intervals to DataFrame
+charging_df = pd.DataFrame(charging_intervals, columns=[
+                           'Start Time', 'End Time'])
+discharging_df = pd.DataFrame(discharging_intervals, columns=[
+                              'Start Time', 'End Time'])
+
+# Save DataFrames to CSV files
+charging_df.to_csv('charging_intervals.csv', index=False)
+discharging_df.to_csv('discharging_intervals.csv', index=False)
+
+# Show the plot
+plt.title('Sine Curve with Relative Maxima and Minima')
+plt.xlabel('Time')
+plt.ylabel('Price')
+plt.legend()
+plt.show()
