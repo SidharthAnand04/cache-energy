@@ -1,0 +1,60 @@
+import gym
+import numpy as np
+import pandas as pd
+from stable_baselines3 import PPO
+
+# Sample DataFrame 'df' with columns 'time', 'demand', and 'price'
+# Replace this with your actual dataset
+data = {'time': range(1, 31),
+        'demand': np.random.randint(10, 100, 30),
+        'price': np.random.uniform(0.1, 0.5, 30)}
+df = pd.DataFrame(data)
+
+# Define a custom environment using your DataFrame
+
+
+class CustomEnv(gym.Env):
+    def __init__(self, df):
+        super(CustomEnv, self).__init__()
+        self.df = df
+        self.observation_space = gym.spaces.Box(
+            low=0, high=1, shape=(3,), dtype=float)  # Continuous state space
+        self.action_space = gym.spaces.Box(
+            low=0, high=24, shape=(2,), dtype=float)  # Two charging times
+        self.current_step = 0
+
+    def reset(self):
+        self.current_step = 0
+        return self.get_state()
+
+    def step(self, actions):
+        # Simulate the environment based on your DataFrame
+        self.current_step += 1
+
+        # Get the state for the current step
+        state = self.get_state()
+
+        # Simulate the environment and compute a reward (e.g., based on your cost minimization criteria)
+        # For simplicity, we'll use a random reward in this example
+        reward = np.random.uniform(0, 1)
+
+        return state, reward, self.current_step >= len(self.df), {}
+
+    def get_state(self):
+        row = self.df.iloc[self.current_step]
+        state = [row['time'], row['price'], row['demand']]
+        return state
+
+
+# Create the custom environment using your DataFrame
+env = CustomEnv(df)
+
+# Define and train the PPO agent
+model = PPO("MlpPolicy", env, verbose=1)
+model.learn(total_timesteps=len(df))
+
+# Predict multiple charging times using the trained policy
+obs = env.reset()
+actions, _states = model.predict(obs)
+
+print("Optimal Charging Times:", actions)

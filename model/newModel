@@ -29,7 +29,7 @@ if response.status_code == 200:
     prices = np.nan_to_num(prices, nan=0)
 
     # Define the number of clusters (charge times) you want to identify
-    num_clusters = 3  # You can adjust this based on your needs
+    num_clusters = 10  # You can adjust this based on your needs
 
     # Reshape the data into a 2D array
     X = np.column_stack((np.arange(len(timestamps)), prices))

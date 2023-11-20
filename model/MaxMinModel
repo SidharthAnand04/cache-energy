@@ -1,0 +1,63 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Generate time points
+num_points = 200
+time = np.linspace(0, 2 * np.pi, num_points)
+
+# Generate a sine curve for price points with added noise for realism
+amplitude = 5
+offset = 10
+noise_factor = 2
+price = amplitude * np.sin(time) + offset + \
+    np.random.normal(0, noise_factor, num_points)
+
+# Identify local maxima and minima
+maxima_indices = (price >= np.roll(price, 1)) & (price > np.roll(price, -1))
+minima_indices = (price <= np.roll(price, 1)) & (price < np.roll(price, -1))
+
+# Identify intervals for charging and discharging based on points before and after max and min
+charge_intervals = []
+discharge_intervals = []
+
+for i in np.where(maxima_indices)[0]:
+    start_index = max(0, i - 1)
+    end_index = min(num_points - 1, i + 1)
+    charge_intervals.append((time[start_index], time[end_index]))
+
+for i in np.where(minima_indices)[0]:
+    start_index = max(0, i - 1)
+    end_index = min(num_points - 1, i + 1)
+    discharge_intervals.append((time[start_index], time[end_index]))
+
+# Convert intervals to DataFrames
+charge_df = pd.DataFrame(charge_intervals, columns=['Start Time', 'End Time'])
+discharge_df = pd.DataFrame(discharge_intervals, columns=[
+                            'Start Time', 'End Time'])
+
+# Output intervals to CSV files
+charge_df.to_csv('charge_intervals.csv', index=False)
+discharge_df.to_csv('discharge_intervals.csv', index=False)
+
+# Plot the sine curve and highlight maxima and minima with individual points
+plt.figure(figsize=(10, 6))
+plt.scatter(time, price, label='Price Curve', color='blue', marker='o')
+
+# Plot a curve of best fit (quadratic fit in this case)
+coefficients = np.polyfit(time, price, 2)
+curve_of_best_fit = np.polyval(coefficients, time)
+plt.plot(time, curve_of_best_fit, color='green', label='Curve of Best Fit')
+
+# Highlight the maxima and minima
+plt.scatter(time[maxima_indices], price[maxima_indices],
+            color='orange', label='Maxima', marker='^')
+plt.scatter(time[minima_indices], price[minima_indices],
+            color='purple', label='Minima', marker='v')
+
+plt.title('Electricity Price vs Time')
+plt.xlabel('Time')
+plt.ylabel('Price')
+plt.legend()
+plt.grid(True)
+plt.show()
