@@ -2,17 +2,19 @@ import {Feature, Navbar} from './components';
 import './App.css';
 import React from 'react';
 import axios from 'axios';
-
 import "./components/assets/demand.png"
+
 
 const App = () => {
   const [imagePath, setImagePath] = React.useState("");
+  const [numPath, setNumber] = React.useState("");
 //makes a request to the backend to run get_graph and update img_path
   const componentDidMount = () => {
 // Make a GET request to a Flask API endpoint
     axios.get('http://127.0.0.1:5000/api/data')
       .then((response) => {
         setImagePath(response.data['img_path'])
+        setNumber(response.data['dummy']);
 //check developer tools to ensure that this message appears
         console.log("data fetched from backend");
       })
@@ -39,11 +41,10 @@ const App = () => {
             {imagePath && <img src={require("./components/assets/demand.png")} alt="img" width ="300" justifycontent="center"/> }
           {/* </div> */}
           <Feature />
+          <p>Dummy Value: {dummy}</p>
         </div>
       </div >
     </div>
   );
 }
 export default App;
-
-

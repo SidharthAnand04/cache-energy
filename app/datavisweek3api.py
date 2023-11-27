@@ -45,6 +45,7 @@ def get_graph():
         print(response.status_code)
         quit()
     filtered_data = [(entry['period'], entry['value']) for entry in data['response']['data'] if isinstance(entry['value'], int) and entry['value'] > 300000]
+    print(type(filtered_data))
     times, values = zip(*filtered_data)
     '''values = [entry["value"] for entry in data["response"]["data"] if isinstance(entry['value'], int) and entry['value'] > 300000]
     times = [entry["period"] for entry in data["response"]["data"]]'''

@@ -1,6 +1,6 @@
 .sidenav {
     height: 1000px;
-    width: 130px;
+    width: 10%;
     padding: 20px;
     background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(4, 60, 28, 0.85) 100%);
     position: fixed;
@@ -19,7 +19,6 @@
     flex-direction: column;
     flex: 1;
     margin: 20px;
-    justify-content:left
     
   }
   .block div{

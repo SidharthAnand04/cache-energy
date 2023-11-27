@@ -3,9 +3,6 @@
 # import matplotlib.pyplot as plt
 # from datetime import datetime
 # import requests
-# import matplotlib
-
-# matplotlib.use('Agg')
 
 # def get_graph():
 #     with open ('mydata.json') as json_file:
@@ -33,11 +30,11 @@
 #     plt.xticks(rotation=45)
 #     plt.tight_layout()
 
-#     # Show the plot
+#     # # Show the plot
 #     # plt.show()
-#     plt.savefig('../frontend/src/components/assets/demand.png', dpi = 300)
-#     return "./components/assets/demand.png"
+#     plt.savefig('demand_plot.png', dpi = 300)
+#     return './app/demand_plot.png'
 
 # print(get_graph())
-# get_graph()
+
 
