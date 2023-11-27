@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-from datavisweek3json import get_graph
+from datavisweek3api import get_graph
+from mockChargeRate import fake_num
 
 app = Flask(__name__)
 CORS(app)
@@ -13,7 +14,8 @@ def get_data():
     
     print("Fetched Data!")
     img_path = get_graph()
-    return jsonify({'img_path': img_path})
+    dummy = fake_num()
+    return jsonify({'img_path': img_path}, {'dummy': dummy})
     # return {"message": "hello"}
 
 if __name__ == "__main__":
