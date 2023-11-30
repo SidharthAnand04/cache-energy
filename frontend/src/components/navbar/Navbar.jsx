@@ -1,25 +1,32 @@
 import React from 'react';
 import './navbar.css';
-// import home from "frontend/src/components/assets/Home.png";
-// import logo from "frontend/src/components/assets/logo.png";
+import logo from "./logo.png";
+import home from "./Home.png";
+
 
 function Navbar() {
   return (
   <div className= "sidenav">
-    <div className= ".logo">
-      {/* <img src = {logo} alt="badbadbad"/> */}
+    <div >
+      {
+      <img src={logo} alt="top left corner logo"
+      />
+      }
     </div>
-      <div className = "block"> 
-        <div>
-          {/* <img src={home} alt="this is very bad"/> */}
-          hello
+    <div className = "block">
+      <div>
+        <img src={home} alt="home thing" className="image"/>
+          Home
+        </div>
+      <div>
+          Energy
         </div>
         <div>
-          what
+          Finance
         </div>
       </div>
   </div>
    );
 };
-  
   export default Navbar;
+

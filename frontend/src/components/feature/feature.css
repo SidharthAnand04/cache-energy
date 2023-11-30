@@ -1,32 +1,30 @@
 .graph_border div{
-    flex: 1;
-    max-width: 150px;
-    min-width: 120px;
-    margin: 1rem;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  flex: 1;
+  max-width: 150px;
+  min-width: 120px;
+  margin: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .spacing {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
 .row {
-    display: inline-flex;
-    flex-direction: row;
-    /* flex-wrap: wrap; */
-    /* width: 100%; */
-  }
-  .row div{
-    display: inline-block;
-  }
-
-  .column {
-    display: flex;
-    flex-direction: column;
-    flex-basis: 100%;
-    flex: 1;
-  }
+  display: inline-flex;
+  flex-direction: row;
+  /* flex-wrap: wrap; */
+  /* width: 100%; */
+}
+.row div{
+  display: inline-block;
+}
+.column {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  flex: 1;
+}

@@ -1,2 +1,2 @@
 def fake_num():
-    return 1;
+    return 1
