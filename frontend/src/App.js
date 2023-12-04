@@ -14,6 +14,11 @@ import Grid from '@mui/material/Grid';
 
 const App = () => {
   const [imagePath, setImagePath] = React.useState("");
+  const [fig1Path, setfig1Path] = React.useState("")
+  const [fig2Path, setfig2Path] = React.useState("")
+  const [fig3Path, setfig3Path] = React.useState("")
+  const [fig4Path, setfig4Path] = React.useState("")
+  const [figTvEPath, setfigTvEPath] = React.useState("")
   // const [numPath, setNumber] = React.useState("");
 //makes a request to the backend to run get_graph and update img_path
   const componentDidMount = () => {
@@ -21,6 +26,11 @@ const App = () => {
     axios.get('http://127.0.0.1:5000/api/data')
       .then((response) => {
         setImagePath(response.data['img_path'])
+        setfig1Path(response.data['fig1_path'])
+        setfig2Path(response.data['fig2_path'])
+        setfig3Path(response.data['fig3_path'])
+        setfig4Path(response.data['fig4_path'])
+        setfigTvEPath(response.data['figTvE_path'])
         
 //check developer tools to ensure that this message appears
         console.log("data fetched from backend");
@@ -67,9 +77,26 @@ const App = () => {
                 height='140px'
                 img src={require("./components/assets/demand.png")}
               />
-              <Paper elevation={3} />
-              <Paper elevation={3} />
-              <Paper elevation={3} />
+              <Paper elevation={3} 
+                component='img'
+                height='140px'
+                img src={require("./components/assets/figTvE.png")}/>
+              <Paper elevation={3} 
+                component='img'
+                height='140px'
+                img src={require("./components/assets/fig1.png")}/>
+              <Paper elevation={3} 
+                component='img'
+                height='140px'
+                img src={require("./components/assets/fig2.png")}/>
+              <Paper elevation={3} 
+                component='img'
+                height='140px'
+                img src={require("./components/assets/fig3.png")}/>
+              <Paper elevation={3} 
+                component='img'
+                height='140px'
+                img src={require("./components/assets/fig4.png")}/>
             </Grid>
           </div>
 
