@@ -73,4 +73,3 @@ def get_graph():
         # return "./components/assets/demand.png"
 
 
-print(get_graph())
